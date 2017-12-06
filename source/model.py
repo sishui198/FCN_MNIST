@@ -3,7 +3,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 
 import tensorflow as tf
 
-def convolution(inputs=None, filters=32, k_size=3, stride=1, padding="same"):
+def convolution(inputs=None, filters=32, k_size=3, stride=1, padding="same", activation_fn=tf.nn.relu):
 
     """https://www.tensorflow.org/api_docs/python/tf/layers/conv1d"""
 
@@ -18,7 +18,7 @@ def convolution(inputs=None, filters=32, k_size=3, stride=1, padding="same"):
     padding=padding,
     data_format=None,
     rate=1,
-    activation_fn=tf.nn.relu,
+    activation_fn=activation_fn,
     normalizer_fn=None,
     normalizer_params=None,
     weights_initializer=tf.contrib.keras.initializers.he_normal(),
@@ -182,7 +182,8 @@ def convolution_neural_network(x, y_, training=None, height=None, width=None, ch
     maxpool_2 = maxpool(inputs=conv_2, pool_size=2)
 
     full_conv_1 = convolution(inputs=maxpool_2, filters=classes, k_size=int(maxpool_2.shape[1]), stride=1, padding="valid")
-    flatten_layer = flatten(inputs=full_conv_1)
+    full_conv_2 = convolution(inputs=full_conv_1, filters=classes, k_size=1, stride=1, padding="same", activation_fn=None)
+    flatten_layer = flatten(inputs=full_conv_2)
 
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=flatten_layer, labels=y_)
     mean_loss = tf.reduce_mean(cross_entropy) # Equivalent to np.mean
