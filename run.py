@@ -16,6 +16,7 @@ def save_graph_as_image(train_list, test_list, ylabel="", label1="train", label2
 
     x = np.arange(len(train_list))
     plt.clf()
+    plt.rcParams['lines.linewidth'] = 1
     plt.plot(x, train_list, label=label1, linestyle='--')
     plt.plot(x, test_list, label=label2, linestyle='--')
     plt.xlabel("step")
