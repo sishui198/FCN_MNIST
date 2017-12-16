@@ -1,12 +1,12 @@
-import tensorflow as tf
-import numpy as np
-
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import os
+import os, argparse
 
 from datetime import datetime
+
+import numpy as np
+import tensorflow as tf
 
 import source.neuralnet as nn
 
@@ -37,72 +37,93 @@ def save_graph_as_image(train_list, test_list, ylabel="", label1="train", label2
     plt.savefig("./graph/"+now.strftime('%Y%m%d_%H%M%S%f')+"_"+cate+"_"+ylabel+".png")
     # plt.show()
 
-from tensorflow.examples.tutorials.mnist import input_data
-mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
+def main():
 
-sess = tf.InteractiveSession()
+    from tensorflow.examples.tutorials.mnist import input_data
+    mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
-x = tf.placeholder(tf.float32)
-y_ = tf.placeholder(tf.float32)
-training = tf.placeholder(tf.bool)
+    sess = tf.InteractiveSession()
 
-convnet = nn.ConvNeuralNet(x=x, y_=y_, training=training, height=28, width=28, channel=1, classes=10)
+    x = tf.placeholder(tf.float32)
+    y_ = tf.placeholder(tf.float32)
+    training = tf.placeholder(tf.bool)
 
-firstconv = convnet._firstconv
-train_step = convnet._trainstep
-accuracy = convnet._accuracy
-cross_entropy = convnet._loss
-prediction = convnet._prediction
+    convnet = nn.ConvNeuralNet(x=x, y_=y_, training=training, height=28, width=28, channel=1, classes=10)
 
-sess.run(tf.global_variables_initializer())
+    conv1 = convnet._conv1
+    conv2 = convnet._conv2
+    train_step = convnet._trainstep
+    accuracy = convnet._accuracy
+    cross_entropy = convnet._loss
+    prediction = convnet._prediction
 
-train_acc_list = []
-train_loss_list = []
-test_acc_list = []
-test_loss_list = []
+    sess.run(tf.global_variables_initializer())
 
-print("\nTraining")
-for i in range(100000):
-    train_batch = mnist.train.next_batch(50)
-    train_x = np.asarray(train_batch[0]).reshape((-1, 28, 28, 1))
-    if i%100 == 0:
-        test_batch = mnist.test.next_batch(50)
-        test_x = np.asarray(test_batch[0]).reshape((-1, 28, 28, 1))
+    train_acc_list = []
+    train_loss_list = []
+    test_acc_list = []
+    test_loss_list = []
 
-        train_accuracy = accuracy.eval(feed_dict={x:train_x, y_:train_batch[1], training:False})
-        test_accuracy = accuracy.eval(feed_dict={x:test_x, y_:test_batch[1], training:False})
-        train_loss = cross_entropy.eval(feed_dict={x:train_x, y_:train_batch[1], training:False})
-        test_loss = cross_entropy.eval(feed_dict={x:test_x, y_:test_batch[1], training:False})
+    print("\nTraining")
+    for i in range(FLAGS.steps):
+        train_batch = mnist.train.next_batch(FLAGS.batch)
+        train_x = np.asarray(train_batch[0]).reshape((-1, 28, 28, 1))
+        if i%100 == 0:
+            test_batch = mnist.test.next_batch(FLAGS.batch)
+            test_x = np.asarray(test_batch[0]).reshape((-1, 28, 28, 1))
 
-        train_acc_list.append(train_accuracy)
-        train_loss_list.append(train_loss)
-        test_acc_list.append(test_accuracy)
-        test_loss_list.append(test_loss)
+            train_accuracy = accuracy.eval(feed_dict={x:train_x, y_:train_batch[1], training:False})
+            test_accuracy = accuracy.eval(feed_dict={x:test_x, y_:test_batch[1], training:False})
+            train_loss = cross_entropy.eval(feed_dict={x:train_x, y_:train_batch[1], training:False})
+            test_loss = cross_entropy.eval(feed_dict={x:test_x, y_:test_batch[1], training:False})
 
-        print("step %4d, training accuracy | %.4f %2.4f"%(i, train_accuracy, train_loss))
+            train_acc_list.append(train_accuracy)
+            train_loss_list.append(train_loss)
+            test_acc_list.append(test_accuracy)
+            test_loss_list.append(test_loss)
 
-    sess.run(train_step, feed_dict={x:train_x, y_:train_batch[1], training:True})
+            print("step %4d, training accuracy | %.4f %2.4f"%(i, train_accuracy, train_loss))
 
-save_graph_as_image(train_list=train_acc_list, test_list=test_acc_list, ylabel="Accuracy", cate="MNIST")
-save_graph_as_image(train_list=train_loss_list, test_list=test_loss_list, ylabel="Loss", cate="MNIST")
+        sess.run(train_step, feed_dict={x:train_x, y_:train_batch[1], training:True})
 
-for digit in range(10):
+    save_graph_as_image(train_list=train_acc_list, test_list=test_acc_list, ylabel="Accuracy", cate="MNIST")
+    save_graph_as_image(train_list=train_loss_list, test_list=test_loss_list, ylabel="Loss", cate="MNIST")
 
-    while True:
-        test_data = mnist.test.next_batch(1)
-        train_x = np.asarray(test_data[0]).reshape((-1, 28, 28, 1))
+    print("Make heatmap")
+    if(not(os.path.exists("./heatmap"))):
+        os.mkdir("./heatmap")
+    for digit in range(10):
 
-        if(np.argmax(test_data[1][0]) == digit):
-            img = np.transpose(train_x[0], (2, 0, 1))[0]
-            plt.clf()
-            plt.imshow(img)
-            plt.savefig(str(digit)+"_origin.png")
+        while True:
+            test_data = mnist.test.next_batch(1)
+            train_x = np.asarray(test_data[0]).reshape((-1, 28, 28, 1))
 
-            conv = sess.run(firstconv, feed_dict={x: train_x, y_:test_data[1]})
+            if(np.argmax(test_data[1][0]) == digit):
+                img = np.transpose(train_x[0], (2, 0, 1))[0]
+                plt.clf()
+                plt.imshow(img)
+                plt.savefig("./heatmap/"+str(digit)+"_origin.png")
 
-            img = np.transpose(conv[0], (2, 0, 1))[0]
-            plt.clf()
-            plt.imshow(img)
-            plt.savefig(str(digit)+"_heat.png")
+                conv1_active = sess.run(conv1, feed_dict={x: train_x, y_:test_data[1]})
+                conv2_active = sess.run(conv2, feed_dict={x: train_x, y_:test_data[1]})
 
-            break
+                img = np.transpose(conv1_active[0], (2, 0, 1))[0]
+                plt.clf()
+                plt.imshow(img)
+                plt.savefig("./heatmap/"+str(digit)+"_heat1.png")
+
+                plt.clf()
+                img = np.transpose(conv2_active[0], (2, 0, 1))[0]
+                plt.imshow(img)
+                plt.savefig("./heatmap/"+str(digit)+"_heat2.png")
+
+                break
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--batch', type=int, default=50, help='Default: 10. Batches per iteration, the number of data to be training and testing.')
+    parser.add_argument('--steps', type=int, default=1000, help='Default: 1000')
+    FLAGS, unparsed = parser.parse_known_args()
+
+    main()
