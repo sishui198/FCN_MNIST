@@ -62,7 +62,7 @@ test_acc_list = []
 test_loss_list = []
 
 print("\nTraining")
-for i in range(100):
+for i in range(1000):
     train_batch = mnist.train.next_batch(50)
     train_x = np.asarray(train_batch[0]).reshape((-1, 28, 28, 1))
     if i%100 == 0:
@@ -100,7 +100,7 @@ for digit in range(10):
 
             conv = sess.run(firstconv, feed_dict={x: train_x, y_:test_data[1]})
 
-            img = np.transpose(conv[0], (2, 0, 1))[digit]
+            img = np.transpose(conv[0], (2, 0, 1))[0]
             plt.clf()
             plt.imshow(img)
             plt.savefig(str(digit)+"_heat.png")
