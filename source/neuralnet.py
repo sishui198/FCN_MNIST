@@ -71,6 +71,7 @@ class ConvNeuralNet(object):
         scope=None
         )
 
+        print("Convolution: "+str(conv.shape))
         return conv
 
     def deconvolution(self, inputs=None, filters=32, k_size=3, stride=1, padding="same"):

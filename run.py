@@ -61,9 +61,8 @@ train_loss_list = []
 test_acc_list = []
 test_loss_list = []
 
-batch_size = 50
 print("\nTraining")
-for i in range(100000):
+for i in range(100):
     train_batch = mnist.train.next_batch(50)
     train_x = np.asarray(train_batch[0]).reshape((-1, 28, 28, 1))
     if i%100 == 0:
@@ -91,14 +90,19 @@ for digit in range(10):
 
     while True:
         test_data = mnist.test.next_batch(1)
-        train_x = np.asarray(train_batch[0]).reshape((-1, 28, 28, 1))
+        train_x = np.asarray(test_data[0]).reshape((-1, 28, 28, 1))
 
         if(np.argmax(test_data[1][0]) == digit):
+            img = np.transpose(train_x[0], (2, 0, 1))[0]
+            plt.clf()
+            plt.imshow(img)
+            plt.savefig(str(digit)+"_origin.png")
+
+            conv = sess.run(firstconv, feed_dict={x: train_x, y_:test_data[1]})
+
+            img = np.transpose(conv[0], (2, 0, 1))[digit]
+            plt.clf()
+            plt.imshow(img)
+            plt.savefig(str(digit)+"_heat.png")
+
             break
-
-    conv = sess.run(firstconv, feed_dict={x: train_x, y_:test_data[1]})
-
-    img = np.transpose(conv[0], (2, 0, 1))[0]
-    plt.clf()
-    plt.imshow(img)
-    plt.savefig(str(digit)+".png")
