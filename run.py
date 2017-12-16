@@ -8,7 +8,6 @@ import os
 
 from datetime import datetime
 
-import source.model as model
 import source.neuralnet as nn
 
 def save_graph_as_image(train_list, test_list, ylabel="", label1="train", label2="test", cate="None"):
