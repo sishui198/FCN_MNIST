@@ -49,6 +49,7 @@ training = tf.placeholder(tf.bool)
 
 convnet = nn.ConvNeuralNet(x=x, y_=y_, training=training, height=28, width=28, channel=1, classes=10)
 
+firstconv = convnet._firstconv
 train_step = convnet._trainstep
 accuracy = convnet._accuracy
 cross_entropy = convnet._loss
@@ -61,8 +62,9 @@ train_loss_list = []
 test_acc_list = []
 test_loss_list = []
 
+batch_size = 50
 print("\nTraining")
-for i in range(1000):
+for i in range(100000):
     train_batch = mnist.train.next_batch(50)
     train_x = np.asarray(train_batch[0]).reshape((-1, 28, 28, 1))
     if i%100 == 0:
@@ -85,3 +87,15 @@ for i in range(1000):
 
 save_graph_as_image(train_list=train_acc_list, test_list=test_acc_list, ylabel="Accuracy", cate="MNIST")
 save_graph_as_image(train_list=train_loss_list, test_list=test_loss_list, ylabel="Loss", cate="MNIST")
+
+for digit in range(10):
+
+    test_data = mnist.test.next_batch(1)
+    train_x = np.asarray(train_batch[0]).reshape((-1, 28, 28, 1))
+
+    conv = sess.run(firstconv, feed_dict={x: train_x, y_:test_data[1]})
+
+    img = np.transpose(conv[0], (2, 0, 1))[0]
+    plt.clf()
+    plt.imshow(img)
+    plt.savefig(str(digit)+".png")

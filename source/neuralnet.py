@@ -12,7 +12,7 @@ class ConvNeuralNet(object):
         x_data = tf.reshape(x, [-1, height, width, channel])
         print("Input: "+str(x_data.shape))
 
-        conv_1 = self.convolution(inputs=x_data, filters=16, k_size=5, stride=1, padding="same")
+        conv_1 = self.convolution(inputs=x_data, filters=8, k_size=5, stride=1, padding="same")
         maxpool_1 = self.maxpool(inputs=conv_1, pool_size=2)
 
         conv_2 = self.convolution(inputs=maxpool_1, filters=16, k_size=5, stride=1, padding="same")
@@ -36,6 +36,7 @@ class ConvNeuralNet(object):
         correct_pred = tf.equal(tf.argmax(flatten_layer, 1), tf.argmax(y_, 1))
         accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
+        self._firstconv = conv_1
         self._trainstep = train_step
         self._accuracy = accuracy
         self._loss = mean_loss
@@ -70,10 +71,6 @@ class ConvNeuralNet(object):
         scope=None
         )
 
-        if(k_size == 1):
-            print("Residual: "+str(conv.shape))
-        else:
-            print("Convolution: "+str(conv.shape))
         return conv
 
     def deconvolution(self, inputs=None, filters=32, k_size=3, stride=1, padding="same"):
