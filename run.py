@@ -62,7 +62,7 @@ test_acc_list = []
 test_loss_list = []
 
 print("\nTraining")
-for i in range(1000):
+for i in range(100000):
     train_batch = mnist.train.next_batch(50)
     train_x = np.asarray(train_batch[0]).reshape((-1, 28, 28, 1))
     if i%100 == 0:
