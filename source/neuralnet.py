@@ -18,7 +18,10 @@ class ConvNeuralNet(object):
         conv_2 = self.convolution(inputs=maxpool_1, filters=16, k_size=5, stride=1, padding="same")
         maxpool_2 = self.maxpool(inputs=conv_2, pool_size=2)
 
-        full_conv_1 = self.convolution(inputs=maxpool_2, filters=classes, k_size=int(maxpool_2.shape[1]), stride=1, padding="valid")
+        conv_3 = self.convolution(inputs=maxpool_2, filters=32, k_size=5, stride=1, padding="same")
+        maxpool_3 = self.maxpool(inputs=conv_3, pool_size=2)
+
+        full_conv_1 = self.convolution(inputs=maxpool_3, filters=classes, k_size=int(maxpool_3.shape[1]), stride=1, padding="valid")
         full_conv_2 = self.convolution(inputs=full_conv_1, filters=classes, k_size=1, stride=1, padding="same", activation_fn=None)
         flatten_layer = self.flatten(inputs=full_conv_2)
 
