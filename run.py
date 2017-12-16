@@ -89,8 +89,12 @@ save_graph_as_image(train_list=train_loss_list, test_list=test_loss_list, ylabel
 
 for digit in range(10):
 
-    test_data = mnist.test.next_batch(1)
-    train_x = np.asarray(train_batch[0]).reshape((-1, 28, 28, 1))
+    while True:
+        test_data = mnist.test.next_batch(1)
+        train_x = np.asarray(train_batch[0]).reshape((-1, 28, 28, 1))
+
+        if(np.argmax(test_data[1][0]) == digit):
+            break
 
     conv = sess.run(firstconv, feed_dict={x: train_x, y_:test_data[1]})
 
