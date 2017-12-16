@@ -5,22 +5,22 @@ import tensorflow as tf
 
 class ConvNeuralNet(object):
 
-    def __init__(x, y_, training=None, height=None, width=None, channel=None, classes=None):
+    def __init__(self, x, y_, training=None, height=None, width=None, channel=None, classes=None):
 
         print("\n** Initialize CNN Layers")
 
         x_data = tf.reshape(x, [-1, height, width, channel])
         print("Input: "+str(x_data.shape))
 
-        conv_1 = convolution(inputs=x_data, filters=16, k_size=5, stride=1, padding="same")
-        maxpool_1 = maxpool(inputs=conv_1, pool_size=2)
+        conv_1 = self.convolution(inputs=x_data, filters=16, k_size=5, stride=1, padding="same")
+        maxpool_1 = self.maxpool(inputs=conv_1, pool_size=2)
 
-        conv_2 = convolution(inputs=maxpool_1, filters=16, k_size=5, stride=1, padding="same")
-        maxpool_2 = maxpool(inputs=conv_2, pool_size=2)
+        conv_2 = self.convolution(inputs=maxpool_1, filters=16, k_size=5, stride=1, padding="same")
+        maxpool_2 = self.maxpool(inputs=conv_2, pool_size=2)
 
-        full_conv_1 = convolution(inputs=maxpool_2, filters=classes, k_size=int(maxpool_2.shape[1]), stride=1, padding="valid")
-        full_conv_2 = convolution(inputs=full_conv_1, filters=classes, k_size=1, stride=1, padding="same", activation_fn=None)
-        flatten_layer = flatten(inputs=full_conv_2)
+        full_conv_1 = self.convolution(inputs=maxpool_2, filters=classes, k_size=int(maxpool_2.shape[1]), stride=1, padding="valid")
+        full_conv_2 = self.convolution(inputs=full_conv_1, filters=classes, k_size=1, stride=1, padding="same", activation_fn=None)
+        flatten_layer = self.flatten(inputs=full_conv_2)
 
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=flatten_layer, labels=y_)
         mean_loss = tf.reduce_mean(cross_entropy) # Equivalent to np.mean
@@ -37,11 +37,11 @@ class ConvNeuralNet(object):
         accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
         self._trainstep = train_step
-        self._accuracy = class_len
+        self._accuracy = accuracy
         self._loss = mean_loss
         self._prediction = prediction
 
-    def convolution(inputs=None, filters=32, k_size=3, stride=1, padding="same", activation_fn=tf.nn.relu):
+    def convolution(self, inputs=None, filters=32, k_size=3, stride=1, padding="same", activation_fn=tf.nn.relu):
 
         """https://www.tensorflow.org/api_docs/python/tf/layers/conv1d"""
 
@@ -76,7 +76,7 @@ class ConvNeuralNet(object):
             print("Convolution: "+str(conv.shape))
         return conv
 
-    def deconvolution(inputs=None, filters=32, k_size=3, stride=1, padding="same"):
+    def deconvolution(self, inputs=None, filters=32, k_size=3, stride=1, padding="same"):
 
         deconv = tf.contrib.layers.conv2d_transpose(
         inputs=inputs,
@@ -102,7 +102,7 @@ class ConvNeuralNet(object):
         print("Deconvolution: "+str(deconv.shape))
         return deconv
 
-    def maxpool(inputs=None, pool_size=2):
+    def maxpool(self, inputs=None, pool_size=2):
 
         """https://www.tensorflow.org/api_docs/python/tf/layers/max_pooling1d"""
 
@@ -118,7 +118,7 @@ class ConvNeuralNet(object):
         print("Max Pool: "+str(maxp.shape))
         return maxp
 
-    def avgpool(inputs=None, pool_size=2):
+    def avgpool(self, inputs=None, pool_size=2):
 
         """https://www.tensorflow.org/api_docs/python/tf/layers/average_pooling1d"""
 
@@ -134,7 +134,7 @@ class ConvNeuralNet(object):
         print("Average Pool: "+str(avg.shape))
         return avg
 
-    def flatten(inputs=None):
+    def flatten(self, inputs=None):
 
         """https://www.tensorflow.org/api_docs/python/tf/contrib/layers/flatten"""
 
@@ -143,7 +143,7 @@ class ConvNeuralNet(object):
         print("Flatten: "+str(flat.shape))
         return flat
 
-    def fully_connected(inputs=None, num_outputs=None, activate_fn=None):
+    def fully_connected(self, inputs=None, num_outputs=None, activate_fn=None):
 
         """https://www.tensorflow.org/api_docs/python/tf/contrib/layers/fully_connected"""
 
@@ -152,7 +152,7 @@ class ConvNeuralNet(object):
         print("Fully Connected: "+str(full_con.shape))
         return full_con
 
-    def batch_normalization(inputs=None):
+    def batch_normalization(self, inputs=None):
         batchnorm = tf.contrib.layers.batch_norm(
         inputs=inputs,
         decay=0.999,
@@ -180,7 +180,7 @@ class ConvNeuralNet(object):
 
         return batchnorm
 
-    def dropout(inputs=None, ratio=0.5, train=None):
+    def dropout(self, inputs=None, ratio=0.5, train=None):
 
         """https://www.tensorflow.org/api_docs/python/tf/layers/dropout"""
 
@@ -196,7 +196,7 @@ class ConvNeuralNet(object):
         print("Dropout: "+str(ratio))
         return drop
 
-    def residual_block(inputs=None, filters=1, k_size=5, stride=1):
+    def residual_block(self, inputs=None, filters=1, k_size=5, stride=1):
 
         conv_1 = convolution(inputs=inputs, filters=filters, k_size=k_size, stride=stride, padding="same")
         conv_2 = convolution(inputs=conv_1, filters=filters, k_size=k_size, stride=stride, padding="same")

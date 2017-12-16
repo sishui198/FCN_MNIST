@@ -9,6 +9,7 @@ import os
 from datetime import datetime
 
 import source.model as model
+import source.neuralnet as nn
 
 def save_graph_as_image(train_list, test_list, ylabel="", label1="train", label2="test", cate="None"):
 
@@ -46,7 +47,12 @@ x = tf.placeholder(tf.float32)
 y_ = tf.placeholder(tf.float32)
 training = tf.placeholder(tf.bool)
 
-train_step, accuracy, cross_entropy, prediction = model.convolution_neural_network(x=x, y_=y_, training=training, height=28, width=28, channel=1, classes=10)
+convnet = nn.ConvNeuralNet(x=x, y_=y_, training=training, height=28, width=28, channel=1, classes=10)
+
+train_step = convnet._trainstep
+accuracy = convnet._accuracy
+cross_entropy = convnet._loss
+prediction = convnet._prediction
 
 sess.run(tf.global_variables_initializer())
 
