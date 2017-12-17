@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 
 import source.neuralnet as nn
-import source.trainer as train
+import source.sub_procedure as sproc
 
 from tensorflow.examples.tutorials.mnist import input_data
 
@@ -22,9 +22,9 @@ def main():
 
     sess.run(tf.global_variables_initializer())
 
-    train.train(dataset=dataset, data=data, label=label, training=training, model=convnet, sess=sess, steps=FLAGS.steps, batch=FLAGS.batch)
+    sproc.train(dataset=dataset, data=data, label=label, training=training, model=convnet, sess=sess, steps=FLAGS.steps, batch=FLAGS.batch)
 
-    train.heatmap(dataset=dataset, data=data, label=label, training=training, model=convnet, sess=sess)
+    sproc.heatmap(dataset=dataset, data=data, label=label, training=training, model=convnet, sess=sess)
 
 
 if __name__ == '__main__':

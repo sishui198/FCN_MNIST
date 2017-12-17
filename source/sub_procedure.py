@@ -49,7 +49,7 @@ def heatmap(dataset, data, label, training, model, sess):
 
     conv_1 = model._conv_1
     conv_2 = model._conv_2
-    conv_3 = model._conv_2
+    conv_3 = model._conv_3
 
     print("Make heatmap")
     if(not(os.path.exists("./heatmap"))):
