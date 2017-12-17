@@ -5,49 +5,39 @@ import tensorflow as tf
 
 class ConvNeuralNet(object):
 
-    def __init__(self, x, y_, training=None, height=None, width=None, channel=None, classes=None):
+    def __init__(self, data, label, training=None, height=None, width=None, channel=None, classes=None):
 
         print("\n** Initialize CNN Layers")
 
-        x_data = tf.reshape(x, [-1, height, width, channel])
-        print("Input: "+str(x_data.shape))
+        input_data = tf.reshape(data, [-1, height, width, channel])
+        print("Input: "+str(input_data.shape))
 
-        conv_1 = self.convolution(inputs=x_data, filters=8, k_size=5, stride=1, padding="same")
-        maxpool_1 = self.maxpool(inputs=conv_1, pool_size=2)
+        self._conv_1 = self.convolution(inputs=input_data, filters=8, k_size=5, stride=1, padding="same")
+        self._maxpool_1 = self.maxpool(inputs=self._conv_1, pool_size=2)
 
-        conv_2 = self.convolution(inputs=maxpool_1, filters=16, k_size=5, stride=1, padding="same")
-        maxpool_2 = self.maxpool(inputs=conv_2, pool_size=2)
+        self._conv_2 = self.convolution(inputs=self._maxpool_1, filters=16, k_size=5, stride=1, padding="same")
+        self._maxpool_2 = self.maxpool(inputs=self._conv_2, pool_size=2)
 
-        conv_3 = self.convolution(inputs=maxpool_2, filters=32, k_size=5, stride=1, padding="same")
-        maxpool_3 = self.maxpool(inputs=conv_3, pool_size=2)
+        self._conv_3 = self.convolution(inputs=self._maxpool_2, filters=32, k_size=5, stride=1, padding="same")
+        self._maxpool_3 = self.maxpool(inputs=self._conv_3, pool_size=2)
 
-        full_conv_1 = self.convolution(inputs=maxpool_3, filters=classes, k_size=int(maxpool_3.shape[1]), stride=1, padding="valid")
-        full_conv_2 = self.convolution(inputs=full_conv_1, filters=classes, k_size=1, stride=1, padding="same", activation_fn=None)
-        flatten_layer = self.flatten(inputs=full_conv_2)
+        self._full_conv_1 = self.convolution(inputs=self._maxpool_3, filters=classes, k_size=int(self._maxpool_3.shape[1]), stride=1, padding="valid")
+        self._full_conv_2 = self.convolution(inputs=self._full_conv_1, filters=classes, k_size=1, stride=1, padding="same", activation_fn=None)
+        self._flatten_layer = self.flatten(inputs=self._full_conv_2)
 
-        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=flatten_layer, labels=y_)
-        mean_loss = tf.reduce_mean(cross_entropy) # Equivalent to np.mean
+        self._cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=self._flatten_layer, labels=label)
+        self._loss = tf.reduce_mean(self._cross_entropy) # Equivalent to np.mean
 
         """https://www.tensorflow.org/versions/r0.12/api_docs/python/train/decaying_the_learning_rate"""
         global_step = tf.Variable(0, trainable=False)
         starter_learning_rate = 0.0001
-        learning_rate = tf.train.exponential_decay(starter_learning_rate, global_step, 10000, 0.96, staircase=True)
+        self._learning_rate = tf.train.exponential_decay(starter_learning_rate, global_step, 10000, 0.96, staircase=True)
 
-        train_step = tf.train.AdamOptimizer(learning_rate, beta1=0.5).minimize(mean_loss)
+        self._train_step = tf.train.AdamOptimizer(self._learning_rate, beta1=0.5).minimize(self._loss)
 
-        prediction = tf.contrib.layers.softmax(flatten_layer) # Want to prediction Use this!
-        correct_pred = tf.equal(tf.argmax(flatten_layer, 1), tf.argmax(y_, 1))
-        accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
-
-        self._conv_1 = conv_1
-        self._maxpool_1 = maxpool_1
-        self._conv_2 = conv_2
-        self._conv_3 = conv_3
-
-        self._trainstep = train_step
-        self._accuracy = accuracy
-        self._loss = mean_loss
-        self._prediction = prediction
+        self._prediction = tf.contrib.layers.softmax(self._flatten_layer) # Want to prediction Use this!
+        correct_pred = tf.equal(tf.argmax(self._flatten_layer, 1), tf.argmax(label, 1))
+        self._accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
     def convolution(self, inputs=None, filters=32, k_size=3, stride=1, padding="same", activation_fn=tf.nn.relu):
 
