@@ -1,4 +1,5 @@
 import os
+import scipy.misc
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -41,6 +42,7 @@ def train(dataset, data, label, training, model, sess, steps, batch):
             print("step %4d, training accuracy | %.4f %2.4f"%(i, train_accuracy, train_loss))
 
         sess.run(train_step, feed_dict={data:train_x, label:train_batch[1], training:True})
+    print("")
 
     util.save_graph_as_image(train_list=train_acc_list, test_list=test_acc_list, ylabel="Accuracy", cate="MNIST")
     util.save_graph_as_image(train_list=train_loss_list, test_list=test_loss_list, ylabel="Loss", cate="MNIST")
@@ -53,9 +55,11 @@ def save_heatmap(layer, digit, layer_name, data, label, training, sess, data_x, 
     plt.imshow(img)
     plt.savefig("./heatmap/"+str(digit)+"_heat_"+str(layer_name)+".png")
 
+    scipy.misc.imsave("./heatmap/"+str(digit)+"_gray_"+str(layer_name)+".png", img)
+
 def heatmap(dataset, data, label, training, model, sess):
 
-    print("Make heatmap")
+    print("\nMake heatmap")
     if(not(os.path.exists("./heatmap"))):
         os.mkdir("./heatmap")
     for digit in range(10):
@@ -69,6 +73,7 @@ def heatmap(dataset, data, label, training, model, sess):
                 plt.clf()
                 plt.imshow(img)
                 plt.savefig("./heatmap/"+str(digit)+"_origin.png")
+                scipy.misc.imsave("./heatmap/"+str(digit)+"_gray_origin.png", img)
 
                 save_heatmap(layer=model._conv_1, digit=digit, layer_name="conv1", data=data, label=label, training=training, sess=sess, data_x=test_x, label_y=test_data[1])
                 save_heatmap(layer=model._maxpool_1, digit=digit, layer_name="maxpool1", data=data, label=label, training=training, sess=sess, data_x=test_x, label_y=test_data[1])
