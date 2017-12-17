@@ -45,11 +45,15 @@ def train(dataset, data, label, training, model, sess, steps, batch):
     util.save_graph_as_image(train_list=train_acc_list, test_list=test_acc_list, ylabel="Accuracy", cate="MNIST")
     util.save_graph_as_image(train_list=train_loss_list, test_list=test_loss_list, ylabel="Loss", cate="MNIST")
 
-def heatmap(dataset, data, label, training, model, sess):
+def save_heatmap(layer, digit, layer_name, data, label, training, sess, data_x, label_y):
 
-    conv_1 = model._conv_1
-    conv_2 = model._conv_2
-    conv_3 = model._conv_3
+    heat = sess.run(layer, feed_dict={data:data_x, label:label_y, training:False})
+    img = np.transpose(heat[0], (2, 0, 1))[0]
+    plt.clf()
+    plt.imshow(img)
+    plt.savefig("./heatmap/"+str(digit)+"_heat_"+str(layer_name)+".png")
+
+def heatmap(dataset, data, label, training, model, sess):
 
     print("Make heatmap")
     if(not(os.path.exists("./heatmap"))):
@@ -58,29 +62,20 @@ def heatmap(dataset, data, label, training, model, sess):
 
         while True:
             test_data = dataset.test.next_batch(1)
-            train_x = np.asarray(test_data[0]).reshape((-1, 28, 28, 1))
+            test_x = np.asarray(test_data[0]).reshape((-1, 28, 28, 1))
 
             if(np.argmax(test_data[1][0]) == digit):
-                img = np.transpose(train_x[0], (2, 0, 1))[0]
+                img = np.transpose(test_x[0], (2, 0, 1))[0]
                 plt.clf()
                 plt.imshow(img)
                 plt.savefig("./heatmap/"+str(digit)+"_origin.png")
 
-                active_1 = sess.run(conv_1, feed_dict={data: train_x, label:test_data[1], training:False})
-                img1 = np.transpose(active_1[0], (2, 0, 1))[0]
-                plt.clf()
-                plt.imshow(img1)
-                plt.savefig("./heatmap/"+str(digit)+"_heat1.png")
+                save_heatmap(layer=model._conv_1, digit=digit, layer_name="conv1", data=data, label=label, training=training, sess=sess, data_x=test_x, label_y=test_data[1])
+                save_heatmap(layer=model._maxpool_1, digit=digit, layer_name="maxpool1", data=data, label=label, training=training, sess=sess, data_x=test_x, label_y=test_data[1])
 
-                active_2 = sess.run(conv_2, feed_dict={data: train_x, label:test_data[1], training:False})
-                img2 = np.transpose(active_2[0], (2, 0, 1))[0]
-                plt.clf()
-                plt.imshow(img2)
-                plt.savefig("./heatmap/"+str(digit)+"_heat2.png")
+                save_heatmap(layer=model._conv_2, digit=digit, layer_name="conv2", data=data, label=label, training=training, sess=sess, data_x=test_x, label_y=test_data[1])
+                save_heatmap(layer=model._maxpool_2, digit=digit, layer_name="maxpool2", data=data, label=label, training=training, sess=sess, data_x=test_x, label_y=test_data[1])
 
-                active_3 = sess.run(conv_3, feed_dict={data: train_x, label:test_data[1], training:False})
-                img3 = np.transpose(active_3[0], (2, 0, 1))[0]
-                plt.clf()
-                plt.imshow(img3)
-                plt.savefig("./heatmap/"+str(digit)+"_heat3.png")
+                save_heatmap(layer=model._conv_3, digit=digit, layer_name="conv3", data=data, label=label, training=training, sess=sess, data_x=test_x, label_y=test_data[1])
+                save_heatmap(layer=model._maxpool_3, digit=digit, layer_name="maxpool3", data=data, label=label, training=training, sess=sess, data_x=test_x, label_y=test_data[1])
                 break
