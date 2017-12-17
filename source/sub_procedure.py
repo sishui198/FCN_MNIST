@@ -67,20 +67,20 @@ def heatmap(dataset, data, label, training, model, sess):
                 plt.savefig("./heatmap/"+str(digit)+"_origin.png")
 
                 active_1 = sess.run(conv_1, feed_dict={data: train_x, label:test_data[1], training:False})
-                img = np.transpose(active_1[0], (2, 0, 1))[0]
+                img1 = np.transpose(active_1[0], (2, 0, 1))[0]
                 plt.clf()
-                plt.imshow(img)
+                plt.imshow(img1)
                 plt.savefig("./heatmap/"+str(digit)+"_heat1.png")
 
                 active_2 = sess.run(conv_2, feed_dict={data: train_x, label:test_data[1], training:False})
-                img = np.transpose(active_2[0], (2, 0, 1))[0]
+                img2 = np.transpose(active_2[0], (2, 0, 1))[0]
                 plt.clf()
-                plt.imshow(img)
+                plt.imshow(img2)
                 plt.savefig("./heatmap/"+str(digit)+"_heat2.png")
 
                 active_3 = sess.run(conv_3, feed_dict={data: train_x, label:test_data[1], training:False})
-                img = np.transpose(active_2[0], (2, 0, 1))[0]
+                img3 = np.transpose(active_3[0], (2, 0, 1))[0]
                 plt.clf()
-                plt.imshow(img)
+                plt.imshow(img3)
                 plt.savefig("./heatmap/"+str(digit)+"_heat3.png")
                 break
