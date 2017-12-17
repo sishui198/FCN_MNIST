@@ -50,8 +50,8 @@ def main():
 
     convnet = nn.ConvNeuralNet(x=x, y_=y_, training=training, height=28, width=28, channel=1, classes=10)
 
-    conv1 = convnet._conv1
-    conv2 = convnet._conv2
+    conv_1 = convnet._conv_1
+    conv_2 = convnet._conv_2
     train_step = convnet._trainstep
     accuracy = convnet._accuracy
     cross_entropy = convnet._loss
@@ -104,16 +104,16 @@ def main():
                 plt.imshow(img)
                 plt.savefig("./heatmap/"+str(digit)+"_origin.png")
 
-                conv1_active = sess.run(conv1, feed_dict={x: train_x, y_:test_data[1]})
-                conv2_active = sess.run(conv2, feed_dict={x: train_x, y_:test_data[1]})
+                conv_1_active = sess.run(conv_1, feed_dict={x: train_x, y_:test_data[1]})
+                conv_2_active = sess.run(conv_2, feed_dict={x: train_x, y_:test_data[1]})
 
-                img = np.transpose(conv1_active[0], (2, 0, 1))[0]
+                img = np.transpose(conv_1_active[0], (2, 0, 1))[0]
                 plt.clf()
                 plt.imshow(img)
                 plt.savefig("./heatmap/"+str(digit)+"_heat1.png")
 
                 plt.clf()
-                img = np.transpose(conv2_active[0], (2, 0, 1))[0]
+                img = np.transpose(conv_2_active[0], (2, 0, 1))[0]
                 plt.imshow(img)
                 plt.savefig("./heatmap/"+str(digit)+"_heat2.png")
 

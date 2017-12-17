@@ -39,8 +39,10 @@ class ConvNeuralNet(object):
         correct_pred = tf.equal(tf.argmax(flatten_layer, 1), tf.argmax(y_, 1))
         accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-        self._conv1 = conv_1
-        self._conv2 = conv_2
+        self._conv_1 = conv_1
+        self._maxpool_1 = maxpool_1
+        self._conv_2 = conv_2
+        self._conv_3 = conv_3
 
         self._trainstep = train_step
         self._accuracy = accuracy
